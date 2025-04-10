@@ -11,3 +11,5 @@ Write-Output "                 and export them to requirements.txt, and installs
 Write-Output "install.ps1      This script is used to set up a virtual environment according to requirements.txt, and installs"
 Write-Output "                 the pre-commit hooks."
 Write-Output "new_version.ps1  This script uses ``python-semantic-release`` to create a changelog and increment the version number."
+Write-Output ""
+Write-Output "InteractiveHtmlBom is installed in the virtual environment. Run ``generate_interactive_bom --help`` for usage information."
