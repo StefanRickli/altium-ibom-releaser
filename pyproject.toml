@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "altium-ibom-releaser"
 dynamic = ["version"]
 requires-python = ">= 3.10"
-dependencies = []
+dependencies = ["InteractiveHtmlBom"]
 
 [project.optional-dependencies]
 dev = ["python-semantic-release", "pre-commit"]
