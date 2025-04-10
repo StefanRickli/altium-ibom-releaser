@@ -1,13 +1,43 @@
 [build-system]
-requires = ["setuptools >= 77.0.3", "setuptools-scm>=8"]
+requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ibom-releaser"
-dynamic = ["version"] # version is deduced from Git tags using setuptools_scm
+name = "altium-ibom-releaser"
+dynamic = ["version"]
 requires-python = ">= 3.10"
-
-# PyOdbDesignLib uses hatch, which doesn't work with our custom TLS certificate.
 dependencies = []
 
-[tool.setuptools_scm]
+[project.optional-dependencies]
+dev = ["python-semantic-release", "pre-commit"]
+
+[tool.setuptools.dynamic]
+version = { attr = "altium_ibom_releaser.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src/"]
+
+[tool.semantic_release]
+major_on_zero = false  # Set to true once we have a nonzero major release
+no_git_verify = false  # Set to true if you want to skip git pre-commit hooks
+tag_format = "v{version}"
+version_variables = [
+    "src/altium_ibom_releaser/__init__.py:__version__:nf",
+]
+
+[tool.semantic_release.branches.main]
+match = "(main|master)"
+prerelease_token = "rc"
+prerelease = false
+
+[tool.semantic_release.changelog]
+exclude_commit_patterns = []  # Mention any commit message patterns to exclude from the changelog
+mode = "update"  # Appends to the changelog file instead of overwriting it
+
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGELOG.md"
+mask_initial_release = true  # Do not list changes for the first release
+
+[tool.semantic_release.publish]
+dist_glob_patterns = ["dist/*"]
+upload_to_vcs_release = true
