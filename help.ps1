@@ -10,4 +10,4 @@ Write-Output "freeze.ps1       This script is used to set up a virtual environme
 Write-Output "                 and export them to requirements.txt, and installs the pre-commit hooks."
 Write-Output "install.ps1      This script is used to set up a virtual environment according to requirements.txt, and installs"
 Write-Output "                 the pre-commit hooks."
-Write-Output "new_version.ps1  This script uses ``semantic-release`` to create a changelog and increment the version number."
+Write-Output "new_version.ps1  This script uses ``python-semantic-release`` to create a changelog and increment the version number."
