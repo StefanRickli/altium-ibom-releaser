@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools >= 77.0.3", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ibom-releaser"
+dynamic = ["version"]
+requires-python = ">= 3.10"
+
+# PyOdbDesignLib uses hatch, which doesn't work with our custom TLS certificate.
+dependencies = [""]
+
+[tool.setuptools_scm]
