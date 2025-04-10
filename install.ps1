@@ -10,6 +10,8 @@ Set-Location $PSScriptRoot
 
 # Remove preexisting .venv folder
 if (-Not (Test-Path .\.venv)) {
+    $new_virtualenv = $true
+
     Write-Host "Creating new virtual environment..."
     py -m venv .venv
 } else {
@@ -27,3 +29,9 @@ pip install -r requirements.txt --no-deps -e .
 # Install pre-commit hooks
 Write-Output "Activating pre-commit hooks..."
 pre-commit install
+
+if ($new_virtualenv) {
+    # Give the user a hint about conventional commits
+    Write-Output ""
+    .\util\hint_conventional_commits.ps1
+}

@@ -1,0 +1,6 @@
+Write-Output "IMPORTANT:"
+Write-Output "This project uses ``Conventional Commits`` to manage its versioning, and a pre-commit hook enforces the commit message format."
+Write-Output "The commit message format is: <type>(<optional scope>): <description>"
+Write-Output "Where <type> is one of the following: feat, fix, docs, style, refactor, perf, test, build, ci, chore."
+Write-Output "The <optional scope> is a noun describing a section of the codebase, and <description> is a short summary of the changes."
+Write-Output "(Refer to https://www.conventionalcommits.org/ for more information.)"
