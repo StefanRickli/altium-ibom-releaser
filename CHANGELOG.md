@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.3.0 (2025-04-11)
+
+### Bug Fixes
+
+- **build**: Add missing file
+  ([`a4abd91`](https://github.com/StefanRickli/altium-ibom-releaser/commit/a4abd91d8c8b35e0578126fe8d94214c3c873643))
+
+### Features
+
+- **build**: Bake version info into executable
+  ([`e5e509e`](https://github.com/StefanRickli/altium-ibom-releaser/commit/e5e509e14005c44100b2e01ed35c62e10c7fe8a0))
+
+
 ## v0.2.2 (2025-04-11)
 
 ### Bug Fixes
