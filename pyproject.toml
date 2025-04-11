@@ -25,15 +25,12 @@ version_variables = [
     "src/altium_ibom_releaser/__init__.py:__version__:nf",
 ]
 commit_message = "chore(release): {version}"
-build_command = "python util/build_exe.py"
+build_command = "python util/build_exe.py --stage"
 
 # Unfortunately, with TLS decryption enabled in a corporate environment, we can't make python-semantic-release
 # to use a custom SSL certificate. This is because it uses requests, which uses urllib3, which doesn't respect
 # any environment variables related to SSL certificates.
 upload_to_release = false
-
-# We assume that the user has already set up SSH keys for GitHub.
-ignore_token_for_push = true
 
 [tool.semantic_release.branches.main]
 match = "(main|master)"

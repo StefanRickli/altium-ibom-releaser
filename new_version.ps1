@@ -25,4 +25,4 @@ $PSNativeCommandUseErrorActionPreference = $true # might be true by default
 # Changelog generation is done identically to the way it is done in :ref:`cmd-changelog`,
 # but this command additionally ensures the updated changelog is included in the release
 # commit that is made.
-semantic-release version
+semantic-release version --no-vcs-release
