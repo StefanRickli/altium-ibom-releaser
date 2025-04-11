@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.3.1 (2025-04-11)
+
+### Bug Fixes
+
+- **build**: Try suppressing git warning `unable to access '\/.config/git/attributes'`
+  ([`3e29f70`](https://github.com/StefanRickli/altium-ibom-releaser/commit/3e29f70a904131ed8e8ec141283cc9295cf3aa65))
+
+
 ## v0.3.0 (2025-04-11)
 
 ### Bug Fixes
