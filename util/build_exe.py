@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import re
 import shutil
@@ -78,7 +79,11 @@ def build():
     print("Copied executable to release folder.")
 
     if args.stage:
-        subprocess.check_call(["git", "add", str(release_path)])
+        env = os.environ.copy()
+        if not env.get("USERPROFILE", None):
+            raise ValueError("USERPROFILE environment variable not set.")
+        env["HOME"] = env["USERPROFILE"]
+        subprocess.check_call(["git", "add", str(release_path)], env=env)
         print("Staged executable in the Git repo.")
 
 if __name__ == "__main__":
