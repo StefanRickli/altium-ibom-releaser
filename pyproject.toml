@@ -25,7 +25,7 @@ version_variables = [
     "src/altium_ibom_releaser/__init__.py:__version__:nf",
 ]
 commit_message = "chore(release): {version}"
-build_command = "python util/build_exe.py --stage"
+build_command = "python scripts/build_exe.py --stage"
 
 # Unfortunately, with TLS decryption enabled in a corporate environment, we can't make python-semantic-release
 # to use a custom SSL certificate. This is because it uses requests, which uses urllib3, which doesn't respect

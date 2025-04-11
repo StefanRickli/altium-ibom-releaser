@@ -19,7 +19,8 @@ try {
     }
 
     Write-Output "Creating a new virtual environment..."
-    py -m venv .venv
+    $pythonPath = "$PSScriptRoot\Get-PythonPath.py"
+    & $pythonPath -m venv .venv
 
     Write-Output "Activating the virtual environment..."
     & .\.venv\Scripts\Activate.ps1
@@ -40,7 +41,7 @@ try {
     if ($new_virtualenv) {
         # Give the user a hint about conventional commits
         Write-Output ""
-        .\dev_commands\hint_conventional_commits.ps1
+        .\scripts\hint_conventional_commits.ps1
     }
 } finally {
     Pop-Location

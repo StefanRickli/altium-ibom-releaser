@@ -5,7 +5,7 @@ $PSNativeCommandUseErrorActionPreference = $true # might be true by default
 Push-Location $PSScriptRoot\..
 try {
 
-    .\dev_commands\_assert_venv.ps1
+    .\scripts\_assert_venv.ps1
     .\.venv\Scripts\Activate.ps1
 
     # From the following documentation:
