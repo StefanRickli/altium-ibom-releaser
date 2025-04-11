@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v0.2.2 (2025-04-11)
+
+### Bug Fixes
+
+- **release**: Disable GitHub release, add built executable to release folder
+  ([`c2da9cf`](https://github.com/StefanRickli/altium-ibom-releaser/commit/c2da9cfd2f75862c488412a379485f11cd98807b))
+
+### Chores
+
+- Add 0.2.1 executable
+  ([`d662b6f`](https://github.com/StefanRickli/altium-ibom-releaser/commit/d662b6f3a03db1d67b92814da2d4a79fcde1bee0))
+
+- **git**: Enable Git LFS for executables
+  ([`cde6f3c`](https://github.com/StefanRickli/altium-ibom-releaser/commit/cde6f3c6f5ca86d438782d0ab0d30230d6911818))
+
+
 ## v0.2.1 (2025-04-11)
 
 ### Bug Fixes
