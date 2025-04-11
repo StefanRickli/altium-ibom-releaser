@@ -2,6 +2,24 @@
 
 <!-- version list -->
 
+## v0.2.1 (2025-04-11)
+
+### Bug Fixes
+
+- **semantic-release**: Assume that SSH keys are correctly set up
+  ([`7ccfd57`](https://github.com/StefanRickli/altium-ibom-releaser/commit/7ccfd57f16d9c74762d474189164f32b48e7cf6a))
+
+### Chores
+
+- Disable release to VCS
+  ([`ab93f48`](https://github.com/StefanRickli/altium-ibom-releaser/commit/ab93f48804aa0eb78838022585ad2759bcd6e74f))
+
+Because the python world has a hard time handling firewalls performing TLS decryption.
+
+- Use release folder for binary location
+  ([`0bee4b7`](https://github.com/StefanRickli/altium-ibom-releaser/commit/0bee4b7eba689b7da9818b541618bd6581219f7a))
+
+
 ## v0.2.0 (2025-04-11)
 
 ### Chores
