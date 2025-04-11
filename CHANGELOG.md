@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.4.0 (2025-04-11)
+
+### Chores
+
+- **scripts**: Make most scripts a command of dev.ps1
+  ([`6a30076`](https://github.com/StefanRickli/altium-ibom-releaser/commit/6a30076493ae8f8452e9904c5736774bb0affeb8))
+
+### Features
+
+- **deps**: Update dependencies
+  ([`7fc00d2`](https://github.com/StefanRickli/altium-ibom-releaser/commit/7fc00d2b8d436324be37c335dcf8cb93c43ed367))
+
+
 ## v0.3.1 (2025-04-11)
 
 ### Bug Fixes
