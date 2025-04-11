@@ -25,6 +25,8 @@ version_variables = [
     "src/altium_ibom_releaser/__init__.py:__version__:nf",
 ]
 commit_message = "chore(release): {version}"
+build_command = "python util/build_exe.py"
+# upload_to_release = true
 
 [tool.semantic_release.branches.main]
 match = "(main|master)"
