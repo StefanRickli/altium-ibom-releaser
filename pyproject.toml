@@ -32,6 +32,9 @@ build_command = "python util/build_exe.py"
 # any environment variables related to SSL certificates.
 upload_to_release = false
 
+# We assume that the user has already set up SSH keys for GitHub.
+ignore_token_for_push = true
+
 [tool.semantic_release.branches.main]
 match = "(main|master)"
 prerelease_token = "rc"
