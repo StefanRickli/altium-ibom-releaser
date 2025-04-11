@@ -1,20 +1,53 @@
 # Altium Interactive BOM Releaser
 
-This app consists of three parts:
-1) Altium Output Job (using Script originally from [InteractiveHTMLBOM4Altium2](https://github.com/zharovdv/InteractiveHTMLBOM4Altium2) that exports intermediate files, and calls:
-2) A file patcher, written in Python, that uses the information from the various file sources to generate a ["Generic JSON"](https://github.com/openscopeproject/InteractiveHtmlBom/blob/master/InteractiveHtmlBom/ecad/schema/genericjsonpcbdata_v1.schema) file, compatible with the JSON schema of KiCad's plugin [InteractiveHtmlBom](https://github.com/openscopeproject/InteractiveHtmlBom). It calls:
-3) InteractiveHtmlBom to generate the self-contained IBOM HTML from the intermediate Generic JSON.
+This toolchain enables the generation of [InteractiveHtmlBom](https://github.com/openscopeproject/InteractiveHtmlBom)-compatible HTML files from Altium projects with design variants.
+It is composed of three stages:
 
-The intermediate files step is needed because the Altium scripting engine is so broken that components, which belong to a design variation, cannot be iterated over using Altium scripts. Exporting the native Pick'n'Place CSV file allows to patch the missing information.
+1. **Altium Output Job**
+   Uses a script based on [InteractiveHTMLBOM4Altium2](https://github.com/zharovdv/InteractiveHTMLBOM4Altium2) to export intermediate files:
+   - A “Generic JSON” file for the IBOM tool
+   - A Pick-and-Place CSV file containing component placement data
 
-This necessitates to use Altium's Project Releaser. It generates all the variation outputs, including the broken JSONs, but the NO_VARIATION JSON is complete. We use this base file to patch the JSON of the variations.
+2. **Python Patcher**
+   A Python tool processes the files above to generate a corrected ["Generic JSON"](https://github.com/openscopeproject/InteractiveHtmlBom/blob/master/InteractiveHtmlBom/ecad/schema/genericjsonpcbdata_v1.schema) file.
+   This step patches missing components that are skipped in Altium’s broken scripting API (specifically, when variants are involved).
 
-## Project Development Status
-- [x] Correct Python project setup, with development, build, and self-contained EXE generation in mind
-- [x] Allow reliable project installation or executable copy into System's PATH, such that it can be used globally in a shell - using a script.
-- [ ] Define Output Job which contains:
-  - [ ] Integrate rewritten [InteractiveHTMLBOM4Altium2](https://github.com/zharovdv/InteractiveHTMLBOM4Altium2) that only outputs Generic JSON
-  - [ ] Definition of Pick and Place CSV export
-- [ ] Per Variation in Output Job:
-  - [ ] Call file patcher
-  - [ ] Convert intermediate Generic JSON to self-contained Interactive HTML BOM
+3. **IBOM Generator**
+   The official [InteractiveHtmlBom](https://github.com/openscopeproject/InteractiveHtmlBom) is used to generate the final self-contained HTML IBOM file from the patched JSON.
+
+---
+
+## 🛠 Why the Intermediate Step?
+
+Due to limitations in Altium’s scripting engine, components defined in design variants **cannot be reliably accessed** via scripts. As a workaround, we use:
+
+- The **Pick-and-Place CSV export**, which correctly reflects variant information
+- The **NO_VARIATION JSON**, which is the only reliably complete JSON file
+
+By using the NO_VARIATION output as a base, and merging variant-specific data from the CSV files, we can reconstruct a valid Generic JSON file for each variant.
+
+---
+
+## 🚧 Project Status
+
+- ✅ Clean Python project setup:
+  - Development and editable installs
+  - Build pipeline for generating a self-contained Windows `.exe`
+- ✅ Support for global CLI usage (via PATH integration or executable copy)
+- ⏳ Output Job Definition:
+  - ☐ Integrate a simplified version of [InteractiveHTMLBOM4Altium2](https://github.com/zharovdv/InteractiveHTMLBOM4Altium2) to only export Generic JSON
+  - ☐ Include proper Pick-and-Place CSV export definition
+- ⏳ Per Variant Processing:
+  - ☐ Patch files using the Python tool
+  - ☐ Generate self-contained Interactive HTML BOM
+
+---
+
+## 🔗 Related Projects
+
+- [InteractiveHtmlBom](https://github.com/openscopeproject/InteractiveHtmlBom)
+- [InteractiveHTMLBOM4Altium2](https://github.com/zharovdv/InteractiveHTMLBOM4Altium2) (original Altium script)
+
+---
+
+Feel free to suggest improvements or contribute patches!
