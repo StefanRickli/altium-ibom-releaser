@@ -1,0 +1,20 @@
+Altium Designer Pick and Place Locations
+C:\Users\Public\Documents\Altium\Dummy Project with Variants\Project Outputs for Dummy Project with Variants\Pick Place\Pick Place for Dummy(24V).txt
+
+========================================================================================================================
+File Design Information:
+
+Date:       14/04/25
+Time:       17:10
+Revision:   cb379b8d77538392ce4d1679d2042872cdd8c90e
+Variant:    24V
+Units used: mm
+
+Designator Comment              Layer       Footprint              Center-X(mm) Center-Y(mm) Rotation Description                                                
+C1         "1u 250V 10% X7R"    BottomLayer CAPC2220(5750)X31N     90.0000mm    71.0000mm    0        "Cap SMD 1.0�F 250V 10% Ceramic X7R 2220(5750)"            
+R4         "1.1M 0.4W 1%"       TopLayer    R-0204-RM3             65.0000mm    85.0000mm    0        "Res THT 1.1M 0.4W 1% 50ppm, metal film"                   
+X1         "Header 2.54mm 1r1p" BottomLayer PinHeader_1x01_P2.54mm 92.0000mm    76.0000mm    180      "Conn THT Header 2.54mm 1-row 1-pol, ONLY PROTOTYPE USAGE" 
+P1         "Header 2.54mm 1r2p" TopLayer    PinHeader_1x02_P2.54mm 83.0000mm    75.0000mm    90       "Conn THT Header 2.54mm 1-row 2-pol"                       
+U1         LM324N               TopLayer    DIP-14                 68.0000mm    76.0000mm    270      "OpAmp THT Quad 32V DIP-14"                                
+R2         "470k 1W 5%"         TopLayer    R-0309-RM5             65.0000mm    97.0000mm    0        "Res THT 470k 1W 5% 250ppm, metal film"                    
+R1         "100R 0.6W 1%"       TopLayer    R-0207-RM4             65.0000mm    103.0000mm   0        "Res THT 100R 0.6W 1% 50ppm, metal film"                   
