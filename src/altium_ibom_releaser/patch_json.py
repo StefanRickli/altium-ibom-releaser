@@ -98,11 +98,12 @@ class Component:
     idx: int
     attrs: dict[str, Any]
 
+def process_release_directory(release_dir: Path):
+    assert isinstance(release_dir, Path), "release_dir must be a Path object."
+    assert release_dir.exists(), f"Release directory {release_dir} does not exist."
 
-if __name__ == "__main__":
-    base_dir = Path("./tests/data/release_prepare")
-    base_variant_dir = base_dir / "Assembly"
-    variant_names = [d.name for d in base_dir.glob("*/") if d.is_dir() and d != base_variant_dir]
+    base_variant_dir = release_dir / "Assembly"
+    variant_names = [d.name for d in release_dir.glob("*/") if d.is_dir() and d != base_variant_dir]
     print("Variants found:")
     print(variant_names)
 
@@ -111,7 +112,7 @@ if __name__ == "__main__":
         ibom_json = load_ibom_json((base_variant_dir / "Script").glob("*.json").__next__())
         ibom_components = reversed([Component(i, attrs) for i, attrs in enumerate(ibom_json["components"])])
 
-        variant_dir = base_dir / variant
+        variant_dir = release_dir / variant
         pnp_file_path = (variant_dir / "Pick Place").glob("*.txt").__next__()
         if pnp_file_path.exists():
             print(f"Processing PNP file: {pnp_file_path}")
@@ -133,3 +134,6 @@ if __name__ == "__main__":
         else:
             print(f"PNP file not found for variant {variant}.")
     pass
+
+if __name__ == "__main__":
+    process_release_directory(Path("./tests/data/release_prepare"))
