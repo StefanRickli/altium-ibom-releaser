@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.5.1 (2025-04-15)
+
+### Bug Fixes
+
+- **ci**: Release definition had a filename typo
+  ([`987ef19`](https://github.com/StefanRickli/altium-ibom-releaser/commit/987ef19f96173b15b1c64a7edfd1bdd613f776ec))
+
+
 ## v0.5.0 (2025-04-15)
 
 ### Bug Fixes
