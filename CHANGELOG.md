@@ -2,6 +2,60 @@
 
 <!-- version list -->
 
+## v0.5.0 (2025-04-15)
+
+### Bug Fixes
+
+- **install**: Get-systempythonpath was called incorrectly, update docs
+  ([`c554474`](https://github.com/StefanRickli/altium-ibom-releaser/commit/c5544742aedf6af7b3887ccec08918f91b89c8ae))
+
+### Build System
+
+- Only copy to release folder when --stage flag is set
+  ([`00527fe`](https://github.com/StefanRickli/altium-ibom-releaser/commit/00527fe9ff80eb204df8277102fb3006469fd79a))
+
+### Chores
+
+- **devtools**: Add build command
+  ([`e0b48b6`](https://github.com/StefanRickli/altium-ibom-releaser/commit/e0b48b6b7523f54449db05c1b86780b103857945))
+
+- **install**: Add command to install exe or editable python project
+  ([`e53cba4`](https://github.com/StefanRickli/altium-ibom-releaser/commit/e53cba4a7131825adb4472cca4d1f27c3646076b))
+
+- **setup**: Make pip install work even with WinPython
+  ([`fe47eeb`](https://github.com/StefanRickli/altium-ibom-releaser/commit/fe47eeb884f068c4c24462ccd3e3c9d77040d8a0))
+
+### Continuous Integration
+
+- Add release.yml
+  ([`755fd43`](https://github.com/StefanRickli/altium-ibom-releaser/commit/755fd4343be67d6356fd583343af220baa20df4e))
+
+### Documentation
+
+- Add README.md
+  ([`04ae160`](https://github.com/StefanRickli/altium-ibom-releaser/commit/04ae160cf5267893e35e1a4dc28562da0b0a94af))
+
+- Fancify README
+  ([`b9edad5`](https://github.com/StefanRickli/altium-ibom-releaser/commit/b9edad51b535d5d2d06b6f300289da21be8ebf72))
+
+- **install**: Improve self-documentation
+  ([`0cad961`](https://github.com/StefanRickli/altium-ibom-releaser/commit/0cad961a6475c573aedc962aa4cae1a0c25762ce))
+
+### Features
+
+- **ibom4altium**: Switch to refactor branch
+  ([`2a9fc8c`](https://github.com/StefanRickli/altium-ibom-releaser/commit/2a9fc8cdc3ec2197e1fab84e85f8fb5277b01b59))
+
+- **main**: Make program a proper cli command
+  ([`4affab6`](https://github.com/StefanRickli/altium-ibom-releaser/commit/4affab64c1e6d42b25463e420f2345c6eed8b443))
+
+- **patcher**: Add original patcher PoC
+  ([`af19905`](https://github.com/StefanRickli/altium-ibom-releaser/commit/af19905a0096463b467ea76b76b88ea37bf366e2))
+
+- **repo**: Add InteractiveHTMLBOM4Altium2 as submodule
+  ([`f1c4728`](https://github.com/StefanRickli/altium-ibom-releaser/commit/f1c472857f93cf2bbf36d61540a284e7dec50675))
+
+
 ## v0.4.0 (2025-04-11)
 
 ### Chores
