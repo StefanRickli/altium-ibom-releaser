@@ -19,7 +19,7 @@ jobs:
     - name: Prepare release assets
       run: |
         mkdir release_assets
-        cp release/altium-ibom-releaser.exe release_assets/
+        cp release/altium_ibom_releaser.exe release_assets/
         cp InteractiveHTMLBOM4Altium2/InteractiveHTMLBOM4Altium2.pas release_assets/
         cp InteractiveHTMLBOM4Altium2/InteractiveHTMLBOM4Altium2.dfm release_assets/
 
