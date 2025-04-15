@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.5.2 (2025-04-15)
+
+### Bug Fixes
+
+- **ci**: Github_token did not have required permissions
+  ([`daf7311`](https://github.com/StefanRickli/altium-ibom-releaser/commit/daf73110b8b9a26f036d81130915622e0cd136e4))
+
+See https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#create-a-release
+  https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
+
+
 ## v0.5.1 (2025-04-15)
 
 ### Bug Fixes
