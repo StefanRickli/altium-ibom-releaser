@@ -10,7 +10,7 @@ if (-not $arg1) {
 }
 
 # Check if the argument is a valid command
-$validCommands = @("help", "update", "setup", "release")
+$validCommands = @("help", "update", "setup", "build", "release")
 if ($validCommands -notcontains $arg1) {
     Write-Host "Invalid argument. Valid arguments are: $($validCommands -join ', ')"
     exit 1
@@ -26,6 +26,9 @@ switch ($arg1) {
     }
     "setup" {
         & "$PSScriptRoot\scripts\setup.ps1"
+    }
+    "build" {
+        & "$PSScriptRoot\scripts\build.ps1"
     }
     "release" {
         & "$PSScriptRoot\scripts\release.ps1"
