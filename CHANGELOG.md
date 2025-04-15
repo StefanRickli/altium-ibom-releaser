@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v0.6.0 (2025-04-15)
+
+### Build System
+
+- **dependencies**: Add colorlog dependency
+  ([`cb56e0c`](https://github.com/StefanRickli/altium-ibom-releaser/commit/cb56e0c349a30425d47c5357af78e816e4fb7df4))
+
+- **dev**: Make shim a real executable
+  ([`3ac69f9`](https://github.com/StefanRickli/altium-ibom-releaser/commit/3ac69f93e71f8fb1e673ad21617211d3a56fcc72))
+
+Altium must have a complete file name with executable in RunApplication, thus, we cannot use a .bat
+  shim
+
+### Features
+
+- Make application fit for Project Releaser
+  ([`eff1ad8`](https://github.com/StefanRickli/altium-ibom-releaser/commit/eff1ad89110b85129a428d985f9cad9c9bf6e6a2))
+
+- **app**: Call InteractiveHtmlBom from main to generate final output
+  ([`12add8c`](https://github.com/StefanRickli/altium-ibom-releaser/commit/12add8cccf4f30688d334dc2041d4e931c5016e7))
+
+
 ## v0.5.3 (2025-04-15)
 
 ### Bug Fixes
