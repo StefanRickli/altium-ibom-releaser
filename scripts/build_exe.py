@@ -70,15 +70,14 @@ def build():
         "src/altium_ibom_releaser/__main__.py"
     ], shell=True)
 
-    release_path = Path("release") / "altium_ibom_releaser.exe"
-
-    shutil.copyfile(
-        Path("dist/altium_ibom_releaser.exe"),
-        release_path,
-    )
-    print("Copied executable to release folder.")
-
     if args.stage:
+        release_path = Path("release") / "altium_ibom_releaser.exe"
+        shutil.copyfile(
+            Path("dist/altium_ibom_releaser.exe"),
+            release_path,
+        )
+        print("Copied executable to release folder.")
+
         env = os.environ.copy()
         if not env.get("USERPROFILE", None):
             raise ValueError("USERPROFILE environment variable not set.")
