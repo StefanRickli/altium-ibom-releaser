@@ -98,7 +98,7 @@ class Component:
     idx: int
     attrs: dict[str, Any]
 
-def process_release_directory(release_dir: Path):
+def process_release_directory(release_dir: Path) -> list[tuple[Path, Path]]:
     assert isinstance(release_dir, Path), "release_dir must be a Path object."
     assert release_dir.exists(), f"Release directory {release_dir} does not exist."
 
@@ -107,7 +107,7 @@ def process_release_directory(release_dir: Path):
     print("Variants found:")
     print(variant_names)
 
-
+    processed_paths = []
     for variant in variant_names:
         ibom_json = load_ibom_json((base_variant_dir / "Script").glob("*.json").__next__())
         ibom_components = reversed([Component(i, attrs) for i, attrs in enumerate(ibom_json["components"])])
@@ -130,10 +130,12 @@ def process_release_directory(release_dir: Path):
                 ibom_json["components"][component.idx]["val"] = variant_components[component.attrs["ref"]]["Description"]
                 ibom_json["components"][component.idx]["extra_fields"]["Comment"] = variant_components[component.attrs["ref"]]["Comment"]
             (tmp_dir / variant).mkdir(parents=True, exist_ok=True)
-            (tmp_dir / variant / "patched_bom.json").write_text(json.dumps(ibom_json, indent=4), encoding="utf-8")
+            output_file = (tmp_dir / variant / "patched_bom.json")
+            output_file.write_text(json.dumps(ibom_json, indent=4), encoding="utf-8")
+            processed_paths.append((variant_dir, output_file))
         else:
             print(f"PNP file not found for variant {variant}.")
-    pass
+    return processed_paths
 
 if __name__ == "__main__":
     process_release_directory(Path("./tests/data/release_prepare"))
