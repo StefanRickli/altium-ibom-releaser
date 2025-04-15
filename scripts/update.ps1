@@ -28,7 +28,7 @@ try {
     & .\.venv\Scripts\Activate.ps1
 
     Write-Output "Installing package (with dev dependencies)..."
-    pip install -e .[dev]
+    & .\.venv\Scripts\python -m pip install -e .[dev]
 
     Write-Output "Updating pre-commit hooks..."
     pre-commit autoupdate

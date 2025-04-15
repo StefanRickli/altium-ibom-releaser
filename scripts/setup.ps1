@@ -28,7 +28,7 @@ try {
 
     # Install the package
     Write-Output "Installing package (with dev dependencies)..."
-    pip install -r requirements.txt --no-deps -e .
+    & .\.venv\Scripts\python -m pip install -r requirements.txt --no-deps -e .
 
     # Install pre-commit hooks
     Write-Output "Activating pre-commit hooks..."
