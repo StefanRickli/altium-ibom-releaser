@@ -1,7 +1,13 @@
+import csv
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
 from typing import Any
+import logging
+
+from altium_ibom_releaser.common import PatchResult, PatchStatus, Paths
+
+moduleLogger = logging.getLogger(__name__)
 
 tmp_dir = Path("./tmp")
 
@@ -20,7 +26,7 @@ class FileInfo:
     fields: dict[str, Field] = field(default_factory=dict)
     data_offset: int = 0
 
-def parse_header(lines: list[str]) -> FileInfo:
+def parse_header(lines: list[str], txt: bool = True) -> FileInfo:
     assert lines
     assert "Altium Designer Pick and Place Locations" in lines[0], "Invalid PNP file header."
 
@@ -28,6 +34,8 @@ def parse_header(lines: list[str]) -> FileInfo:
 
     file_info_block_data_offset = 0
     for i, line in enumerate(lines):
+        if not line.split():
+            continue
         if line.startswith("Date:"):
             # Split by whitespace, save the date, remember offset of date string
             file_info.date = line.split()[1]
@@ -45,14 +53,18 @@ def parse_header(lines: list[str]) -> FileInfo:
         if line.startswith("Units used:"):
             file_info.units_used = line[file_info_block_data_offset:]
             continue
-        if line.startswith("Designator"):
-            file_info.fields = extract_fields(line)
-            file_info.data_offset = i + 1  # Data starts after the header line
+        if "Designator" in line:
+            if txt:
+                file_info.fields = extract_fields(line, csv)
+                file_info.data_offset = i + 1  # Data starts after the header line
+            else:
+                file_info.fields = {}
+                file_info.data_offset = i # Include header line for csv parser
             return file_info
     else:
         raise ValueError("No header line found in PNP file.")
 
-def extract_fields(line: str) -> list[Field]:
+def extract_fields(line: str, csv: bool) -> list[Field]:
     """Extract fields from the header line."""
     fields = []
     field_names = line.split()
@@ -67,10 +79,17 @@ def extract_fields(line: str) -> list[Field]:
             fields[-1].slice = (fields[-1].slice[0], None)
     return {f.name: f for f in fields}
 
-def extract_components(pnp_file_contents: str) -> dict:
+def extract_components_csv(pnp_file_contents: str) -> dict:
+    lines = pnp_file_contents.strip().splitlines()
+    file_info = parse_header(lines, txt=False)
+    reader = csv.DictReader(lines[file_info.data_offset:])
+    components = {component["Designator"]: component for component in reader}
+    return components
+
+def extract_components_txt(pnp_file_contents: str) -> dict:
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines)
-    print(file_info)
+    moduleLogger.debug(file_info)
     components = {}
     for line in lines[file_info.data_offset:]:
         if line.strip() == "":
@@ -98,44 +117,47 @@ class Component:
     idx: int
     attrs: dict[str, Any]
 
-def process_release_directory(release_dir: Path) -> list[tuple[Path, Path]]:
-    assert isinstance(release_dir, Path), "release_dir must be a Path object."
-    assert release_dir.exists(), f"Release directory {release_dir} does not exist."
+def patch_output(paths: Paths) -> PatchResult:
+    assert isinstance(paths, Paths), "paths must be a Paths object."
+    assert paths.pnp_file.exists(), f"PNP file {paths.pnp_file} does not exist."
+    assert paths.no_variation_json_file.exists(), f"JSON file {paths.no_variation_json_file} does not exist."
 
-    base_variant_dir = release_dir / "Assembly"
-    variant_names = [d.name for d in release_dir.glob("*/") if d.is_dir() and d != base_variant_dir]
-    print("Variants found:")
-    print(variant_names)
+    result = PatchResult()
 
-    processed_paths = []
-    for variant in variant_names:
-        ibom_json = load_ibom_json((base_variant_dir / "Script").glob("*.json").__next__())
-        ibom_components = reversed([Component(i, attrs) for i, attrs in enumerate(ibom_json["components"])])
+    ibom_json = load_ibom_json(paths.no_variation_json_file)
+    ibom_components = reversed([Component(i, attrs) for i, attrs in enumerate(ibom_json["components"])])
 
-        variant_dir = release_dir / variant
-        pnp_file_path = (variant_dir / "Pick Place").glob("*.txt").__next__()
-        if pnp_file_path.exists():
-            print(f"Processing PNP file: {pnp_file_path}")
-            variant_components = extract_components(pnp_file_path.read_text(encoding="utf-8"))
-            for component in ibom_components:
-                if component.attrs["ref"] not in variant_components.keys():
-                    # del ibom_json["components"][component.idx]
-                    ibom_json["components"][component.idx]["extra_fields"]["dnp"] = "DNP"
-                    ibom_json["components"][component.idx]["attr"] = ""  # can be "Virtual"
-                    ibom_json["components"][component.idx]["footprint"] = ""
-                    # ibom_json["components"][component.idx]["layer"] = ""  # one of {"F", "B"}
-                    ibom_json["components"][component.idx]["val"] = ""
-                    continue
-                ibom_json["components"][component.idx]["footprint"] = variant_components[component.attrs["ref"]]["Footprint"]
-                ibom_json["components"][component.idx]["val"] = variant_components[component.attrs["ref"]]["Description"]
-                ibom_json["components"][component.idx]["extra_fields"]["Comment"] = variant_components[component.attrs["ref"]]["Comment"]
-            (tmp_dir / variant).mkdir(parents=True, exist_ok=True)
-            output_file = (tmp_dir / variant / "patched_bom.json")
-            output_file.write_text(json.dumps(ibom_json, indent=4), encoding="utf-8")
-            processed_paths.append((variant_dir, output_file))
-        else:
-            print(f"PNP file not found for variant {variant}.")
-    return processed_paths
+    moduleLogger.debug(f"Processing PNP file: {paths.pnp_file}")
+    if paths.pnp_file.suffix == ".csv":
+        variant_components = extract_components_csv(paths.pnp_file.read_text(encoding="windows-1252"))
+    else:
+        variant_components = extract_components_txt(paths.pnp_file.read_text(encoding="windows-1252"))
+    visited_components = set()
+    for component in ibom_components:
+        if component.attrs["ref"] not in variant_components.keys():
+            # del ibom_json["components"][component.idx]
+            ibom_json["components"][component.idx]["extra_fields"]["dnp"] = "DNP"
+            continue
+        ibom_json["components"][component.idx]["footprint"] = variant_components[component.attrs["ref"]]["Footprint"]
+        ibom_json["components"][component.idx]["val"] = variant_components[component.attrs["ref"]]["Description"]
+        ibom_json["components"][component.idx]["extra_fields"]["Comment"] = variant_components[component.attrs["ref"]]["Comment"]
+        visited_components.add(component.attrs["ref"])
 
-if __name__ == "__main__":
-    process_release_directory(Path("./tests/data/release_prepare"))
+    if has_extra_components(variant_components, visited_components):
+        moduleLogger.error("Extra components found in PNP file!")
+        ibom_json["pcbdata"]["metadata"]["title"] += " (❌ INCOMPLETE ❌)"
+        result.status = PatchStatus.ERROR
+        result.message = ("The iBOM HTML very likely has missing components.\n"
+                          "The conversion only works correctly with variants if you use the Project Releaser.")
+
+    (paths.target_json_file.parent).mkdir(parents=True, exist_ok=True)
+    paths.target_json_file.write_text(json.dumps(ibom_json, indent=4), encoding="utf-8")
+
+    return result
+
+def has_extra_components(variant_components: dict, visited_components: set) -> bool:
+    """Check if there are extra components in the PNP file that are not in the IBOM JSON."""
+    for component in variant_components.keys():
+        if component not in visited_components:
+            return True
+    return False
