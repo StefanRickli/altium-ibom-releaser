@@ -2,6 +2,16 @@
 
 <!-- version list -->
 
+## v0.6.1 (2025-04-15)
+
+### Bug Fixes
+
+- **ibom4altium**: Predictoutputfilenames crashed upon Project Release preparation start
+  ([`29a0eb9`](https://github.com/StefanRickli/altium-ibom-releaser/commit/29a0eb9d54ac41330691545588dc76759250caec))
+
+Because during this invocation, GetBoard has no access to the PcbDoc.
+
+
 ## v0.6.0 (2025-04-15)
 
 ### Build System
