@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.5.3 (2025-04-15)
+
+### Bug Fixes
+
+- **ci**: Enable Git LFS support for the binary artifact
+  ([`5960317`](https://github.com/StefanRickli/altium-ibom-releaser/commit/59603177bc9f4975cb71c957fbe1925a0622ef52))
+
+
 ## v0.5.2 (2025-04-15)
 
 ### Bug Fixes
