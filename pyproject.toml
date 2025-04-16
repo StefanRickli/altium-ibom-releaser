@@ -15,7 +15,12 @@ dev = ["pre-commit", "pyinstaller", "python-semantic-release", "mypy", "ruff"]
 version = { attr = "altium_ibom_releaser.__version__" }
 
 [tool.setuptools.packages.find]
-where = ["src/"]
+where = ["src"]
+include = ["altium_ibom_releaser"]
+exclude = ["dev_shim"]
+
+[tool.setuptools.package-data]
+"altium_ibom_releaser" = ["py.typed"]
 
 [tool.semantic_release]
 no_git_verify = false  # Set to true if you want to skip git pre-commit hooks
