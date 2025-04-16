@@ -29,6 +29,7 @@ try {
     # but this command additionally ensures the updated changelog is included in the release
     # commit that is made.
     semantic-release version --no-vcs-release
+    Write-Output "Release version completed."
 } finally {
     Pop-Location
 }
