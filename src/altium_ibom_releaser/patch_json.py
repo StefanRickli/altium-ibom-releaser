@@ -166,7 +166,7 @@ def patch_json(paths: Paths, config: dict[str, Any]) -> PatchResult:
     assert_no_missing_cols(config, pnp_file_info)
     visited_components = update_ibom_components(config, ibom_json, ibom_components, variant_components)
 
-    update_ibom_metadata(ibom_json, pnp_file_info)
+    update_ibom_metadata(config, ibom_json, pnp_file_info)
 
     if has_extra_components(variant_components, visited_components):
         moduleLogger.error("Extra components found in PNP file!")
@@ -183,7 +183,12 @@ def patch_json(paths: Paths, config: dict[str, Any]) -> PatchResult:
     return result
 
 
-def update_ibom_components(config: dict[str, Any], ibom_json: dict[str, Any], ibom_components: Iterator[Component], variant_components: dict[str, dict[str, str]]) -> set[str]:
+def update_ibom_components(
+    config: dict[str, Any],
+    ibom_json: dict[str, Any],
+    ibom_components: Iterator[Component],
+    variant_components: dict[str, dict[str, str]],
+) -> set[str]:
     visited_components = set()
     for component in ibom_components:
         if component.attrs["ref"] not in variant_components.keys():
@@ -203,13 +208,16 @@ def update_ibom_components(config: dict[str, Any], ibom_json: dict[str, Any], ib
     return visited_components
 
 
-def update_ibom_metadata(ibom_json: dict[str, Any], pnp_file_info: FileInfo) -> None:
+def update_ibom_metadata(config: dict[str, Any], ibom_json: dict[str, Any], pnp_file_info: FileInfo) -> None:
     if "font_data" in ibom_json["pcbdata"].keys():
         # Let InteractiveHtmlBom generate the font_data and use its default font
         del ibom_json["pcbdata"]["font_data"]
 
     date = datetime.strptime(pnp_file_info.date, "%d/%m/%y")
     ibom_json["pcbdata"]["metadata"]["date"] = date.strftime("%d.%m.%Y")
+
+    if config["AddVariantToTitle"]:
+        ibom_json["pcbdata"]["metadata"]["title"] += f" ({pnp_file_info.variant})"
 
 
 def has_extra_components(variant_components: dict, visited_components: set) -> bool:

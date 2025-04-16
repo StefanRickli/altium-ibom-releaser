@@ -14,7 +14,7 @@ from altium_ibom_releaser.util import init_logging
 
 # Prevent InteractiveHtmlBom from trying to load not-installed packaged `pcbnew`
 os.environ["INTERACTIVE_HTML_BOM_CLI_MODE"] = "1"
-import InteractiveHtmlBom.generate_interactive_bom as ibom # type: ignore
+import InteractiveHtmlBom.generate_interactive_bom as ibom  # type: ignore
 
 from altium_ibom_releaser.patch_json import patch_json
 
@@ -64,6 +64,7 @@ def get_assembly_dir(current_path: Path) -> Path:
             return parent
     raise FileNotFoundError(f"Assembly directory not found in '{current_path}'.")
 
+
 def find_files(start_dir: Path, extend_search: bool = True) -> Paths:
     json_file = find_json_file(start_dir)
     if not (cfg_file := json_file.with_suffix(".cfg")).exists():
@@ -108,6 +109,7 @@ def main() -> None:
         description="Process an Output Job directory, patching its iBOM JSON, and generating HTML."
     )
     parser.add_argument("outjob_dir", type=str, help="Path to the Output Job directory.")
+    parser.add_argument("--no-variant-in-title", action="store_true", help="Add variant to the title.")
     args = parser.parse_args()
 
     # Remove a trailing double quote in the path if it exists
@@ -116,6 +118,7 @@ def main() -> None:
 
     config_raw = paths.cfg_file.read_text(encoding="windows-1252")
     config = parse_config(config_raw)
+    config["AddVariantToTitle"] = not args.no_variant_in_title
 
     patch_result = patch_json(paths, config)
 
