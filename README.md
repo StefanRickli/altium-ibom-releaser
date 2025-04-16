@@ -43,17 +43,28 @@ Please follow the following steps to include `altium-ibom-releaser` in your Proj
 5. Copy following files into the root directory of your Altium project:
    - `InteractiveHTMLBOM4Altium2.pas`
    - `InteractiveHTMLBOM4Altium2.dfm`
-   - `altium-ibom-releaser.OutJob`
 6. For your Altium Project:
    - `Right Click on Project > Add Existing to Project > All Files`
      - `InteractiveHTMLBOM4Altium2.pas`
      - `InteractiveHTMLBOM4Altium2.dfm`
-     - `altium-ibom-releaser.OutJob`
+   - `Right Click on Project > Add New to Project > Output Job File`
 7. In the Output Job:
+   - Create the necessary output steps:
+     - `Assembly Outputs > Add New Assembly Output > Generates Pick and Place files > [PCB Document]`
+     - Enable the Pick and Place step for the `Folder Structure` in the right panel. **It needs to be step 1 in the list.**
+     - `Report Outputs > Add New Report Output > Script Output > [InteractiveHTMLBOM4Altium2]`
+     - Enable the Script Output step for the `Folder Structure` in the right panel. **It needs to be step 2 in the list.**
    - `Report Outputs > Right Click on the Script > Configure`, and set the parameters according to your project's needs:
    - `Assembly Outputs > Right Click on the Pick & Place Step > Configure`:
+     - Select `CSV` as the output format.
+     - Separator: `.` (dot)
      - **IMPORTANT:** You need to select at least the same columns as in the script configuration, otherwise, `altium-ibom-releaser` will complain about missing columns in the CSV file.
-   - `Output Containers > Folder Structure > Change`: Set the output folder if you want a different location than `ibom`.
+     - `Include Variation Component` must be **disabled**
+   - `Output Containers > Folder Structure > Change`:
+     - Set the output folder if you want a different location than `ibom`.
+     - `Advanced`:
+       - `Open generated outputs`: **disabled**
+       - `Add generated files to project`: **disabled**
    - `Generate Content`: This is a test run. If all goes well, you should see the following files in the output folder:
      - `ibom\iBOM for <PcbDoc Name>.cfg`
      - `ibom\iBOM for <PcbDoc Name>.json`
@@ -73,6 +84,13 @@ Please follow the following steps to include `altium-ibom-releaser` in your Proj
 1. Download the files from the latest [release](https://github.com/StefanRickli/altium-ibom-releaser/releases) of this repository.
 2. Copy the executable into any location of your `PATH` environment variable.
 3. Continue at step 5 of the installation using project script.
+
+### Updates
+
+Updates to `altium-ibom-releaser` have two scopes:
+
+- **.pas/.dfm** files: Unfortunately, because we need to add them to each project, each project needs to be updated manually.
+- **Executable**: The executable is a standalone file, outside your Altium project. You can simply replace the old version with the new one (using manual overwrite or new invocation of `install.ps1`). The new version will be used in the next project release. That means, updates to the visuals of the HTML file will be automatically included in the next project release.
 
 ## Python Package Development
 
