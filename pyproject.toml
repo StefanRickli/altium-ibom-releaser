@@ -18,7 +18,6 @@ version = { attr = "altium_ibom_releaser.__version__" }
 where = ["src/"]
 
 [tool.semantic_release]
-major_on_zero = false  # Set to true once we have a nonzero major release
 no_git_verify = false  # Set to true if you want to skip git pre-commit hooks
 tag_format = "v{version}"
 version_variables = [
