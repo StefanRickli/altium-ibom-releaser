@@ -181,7 +181,8 @@ def update_ibom_metadata(ibom_json, pnp_file_info):
         # Let InteractiveHtmlBom generate the font_data and use its default font
         del ibom_json["pcbdata"]["font_data"]
 
-    ibom_json["pcbdata"]["metadata"]["date"] = pnp_file_info.date
+    date = datetime.strptime(pnp_file_info.date, "%d/%m/%y")
+    ibom_json["pcbdata"]["metadata"]["date"] = date.strftime("%d.%m.%Y")
 
 def has_extra_components(variant_components: dict, visited_components: set) -> bool:
     """Check if there are extra components in the PNP file that are not in the IBOM JSON."""
