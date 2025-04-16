@@ -2,6 +2,42 @@
 
 <!-- version list -->
 
+## v0.9.1 (2025-04-16)
+
+### Bug Fixes
+
+- **style**: Reformat date string
+  ([`540912a`](https://github.com/StefanRickli/altium-ibom-releaser/commit/540912af6fa457b5ade61acbf2e7578b04e1edaf))
+
+### Build System
+
+- Exclude dev_shim from exported packages
+  ([`5580afd`](https://github.com/StefanRickli/altium-ibom-releaser/commit/5580afd0adfb25c2a1785b39898535d2e9bd611a))
+
+### Chores
+
+- **deps**: Add mypy, ruff to dependencies
+  ([`f9532b6`](https://github.com/StefanRickli/altium-ibom-releaser/commit/f9532b6b362ec92faeebc8f5a762815c8ea1050d))
+
+### Code Style
+
+- Format files
+  ([`5613282`](https://github.com/StefanRickli/altium-ibom-releaser/commit/5613282119cb973de3a486ac4a6981610ebe868e))
+
+### Continuous Integration
+
+- Debug missing exe file in release artifacts
+  ([`9db0d02`](https://github.com/StefanRickli/altium-ibom-releaser/commit/9db0d02c105efba59b7e84835e0843fee81b3545))
+
+### Refactoring
+
+- Extract a few functions
+  ([`16c3ccb`](https://github.com/StefanRickli/altium-ibom-releaser/commit/16c3ccb929a08a1f3f73cbb077b39e816836c5dd))
+
+- Fix mypy issues
+  ([`b296a11`](https://github.com/StefanRickli/altium-ibom-releaser/commit/b296a114a633af617320f232e9aa31d4d1c7a3d7))
+
+
 ## v0.9.0 (2025-04-16)
 
 ### Features
