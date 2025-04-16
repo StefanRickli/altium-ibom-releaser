@@ -2,6 +2,27 @@
 
 <!-- version list -->
 
+## v0.10.0 (2025-04-16)
+
+### Documentation
+
+- Include information about creation of Output Job
+  ([`5a84922`](https://github.com/StefanRickli/altium-ibom-releaser/commit/5a8492260569de2975befaf8cb53d34fde3f5ef9))
+
+- Update README.md
+  ([`a525707`](https://github.com/StefanRickli/altium-ibom-releaser/commit/a5257077add9dfe66022a4b56e2095eabeb5dc08))
+
+### Features
+
+- **patching**: Add option to include variant in title
+  ([`ecc954c`](https://github.com/StefanRickli/altium-ibom-releaser/commit/ecc954caa41681fe232f9d2c6b9124d704c179a2))
+
+### Refactoring
+
+- Annotate un-annotated functions
+  ([`5d36727`](https://github.com/StefanRickli/altium-ibom-releaser/commit/5d36727035ad3f46113fcdc0349717d750451fc0))
+
+
 ## v0.9.1 (2025-04-16)
 
 ### Bug Fixes
