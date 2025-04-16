@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.7.1 (2025-04-16)
+
+### Bug Fixes
+
+- **form**: Add missing label definition
+  ([`04914e0`](https://github.com/StefanRickli/altium-ibom-releaser/commit/04914e00752b4a079de457b8562dc49fdb9dba0c))
+
+### Chores
+
+- **pre-commit**: Make pushes a bit faster
+  ([`cd83fa3`](https://github.com/StefanRickli/altium-ibom-releaser/commit/cd83fa317557afedc6b9421c4a3c3613ff3f33b6))
+
+
 ## v0.7.0 (2025-04-16)
 
 ### Bug Fixes
