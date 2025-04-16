@@ -14,11 +14,6 @@ if not python_path.exists():
     exit(1)
 
 try:
-    check_call([
-        str(python_path),
-        "-m",
-        "altium_ibom_releaser",
-        *argv[1:]
-        ])
+    check_call([str(python_path), "-m", "altium_ibom_releaser", *argv[1:]])
 except CalledProcessError:
     input("Press Enter to continue...")

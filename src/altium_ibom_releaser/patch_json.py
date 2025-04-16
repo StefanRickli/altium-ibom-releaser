@@ -12,10 +12,12 @@ moduleLogger = logging.getLogger(__name__)
 
 tmp_dir = Path("./tmp")
 
+
 @dataclass
 class Field:
     name: str = ""
     slice: tuple[int, int] = (0, 0)
+
 
 @dataclass
 class FileInfo:
@@ -26,6 +28,7 @@ class FileInfo:
     units_used: str = ""
     fields: dict[str, Field] = field(default_factory=dict)
     data_offset: int = 0
+
 
 def parse_header(lines: list[str], txt: bool = True) -> FileInfo:
     assert lines
@@ -60,10 +63,11 @@ def parse_header(lines: list[str], txt: bool = True) -> FileInfo:
                 file_info.data_offset = i + 1  # Data starts after the header line
             else:
                 file_info.fields = {}
-                file_info.data_offset = i # Include header line for csv parser
+                file_info.data_offset = i  # Include header line for csv parser
             return file_info
     else:
         raise ValueError("No header line found in PNP file.")
+
 
 def extract_fields(line: str, csv: bool) -> list[Field]:
     """Extract fields from the header line."""
@@ -80,27 +84,34 @@ def extract_fields(line: str, csv: bool) -> list[Field]:
             fields[-1].slice = (fields[-1].slice[0], None)
     return {f.name: f for f in fields}
 
+
 def extract_variant_components(paths):
     if paths.pnp_file.suffix == ".csv":
-        variant_components, pnp_file_info = extract_variant_components_csv(paths.pnp_file.read_text(encoding="windows-1252"))
+        variant_components, pnp_file_info = extract_variant_components_csv(
+            paths.pnp_file.read_text(encoding="windows-1252")
+        )
     else:
-        variant_components, pnp_file_info = extract_variant_components_txt(paths.pnp_file.read_text(encoding="windows-1252"))
-    return variant_components,pnp_file_info
+        variant_components, pnp_file_info = extract_variant_components_txt(
+            paths.pnp_file.read_text(encoding="windows-1252")
+        )
+    return variant_components, pnp_file_info
+
 
 def extract_variant_components_csv(pnp_file_contents: str) -> tuple[dict, FileInfo]:
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines, txt=False)
-    reader = csv.DictReader(lines[file_info.data_offset:])
+    reader = csv.DictReader(lines[file_info.data_offset :])
     file_info.fields = reader.fieldnames
     components = {component["Designator"]: component for component in reader}
     return (components, file_info)
+
 
 def extract_variant_components_txt(pnp_file_contents: str) -> tuple[dict, FileInfo]:
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines)
     moduleLogger.debug(file_info)
     components = {}
-    for line in lines[file_info.data_offset:]:
+    for line in lines[file_info.data_offset :]:
         if line.strip() == "":
             continue
         new_component = {}
@@ -111,26 +122,33 @@ def extract_variant_components_txt(pnp_file_contents: str) -> tuple[dict, FileIn
         components[new_component["Designator"]] = new_component
     return (components, file_info)
 
+
 def cleanup_string(s: str):
-    """ Remove leading, trailing double quotes and spaces from string """
+    """Remove leading, trailing double quotes and spaces from string"""
     s = s.strip()
     if s.startswith('"') and s.endswith('"'):
         s = s[1:-1]
     return s.strip()
 
+
 def load_ibom_json(file_path: Path) -> dict:
     return json.loads(file_path.read_text(encoding="utf-8"))
+
 
 def assert_no_missing_cols(config: dict[str, Any], pnp_file_info: FileInfo) -> None:
     """Check if the PNP file has all the required columns."""
     missing_cols = set(config["SelectedColumns"]) - set(pnp_file_info.fields)
     if missing_cols:
-        raise ValueError(f"Configured InteractiveHTMLBOM4Altium to use columns {missing_cols}, but PNP file is missing them.")
+        raise ValueError(
+            f"Configured InteractiveHTMLBOM4Altium to use columns {missing_cols}, but PNP file is missing them."
+        )
+
 
 @dataclass
 class Component:
     idx: int
     attrs: dict[str, Any]
+
 
 def patch_json(paths: Paths, config: dict[str, Any]) -> PatchResult:
     assert isinstance(paths, Paths), "paths must be a Paths object."
@@ -153,13 +171,16 @@ def patch_json(paths: Paths, config: dict[str, Any]) -> PatchResult:
         moduleLogger.error("Extra components found in PNP file!")
         ibom_json["pcbdata"]["metadata"]["title"] += " (❌ INCOMPLETE ❌)"
         result.status = PatchStatus.ERROR
-        result.message = ("The iBOM HTML very likely has missing components.\n"
-                          "The conversion only works correctly with variants if you use the Project Releaser.")
+        result.message = (
+            "The iBOM HTML very likely has missing components.\n"
+            "The conversion only works correctly with variants if you use the Project Releaser."
+        )
 
     (paths.target_json_file.parent).mkdir(parents=True, exist_ok=True)
     paths.target_json_file.write_text(json.dumps(ibom_json, indent=4), encoding="utf-8")
 
     return result
+
 
 def update_ibom_components(config, ibom_json, ibom_components, variant_components):
     visited_components = set()
@@ -170,11 +191,16 @@ def update_ibom_components(config, ibom_json, ibom_components, variant_component
             continue
         ibom_json["components"][component.idx]["footprint"] = variant_components[component.attrs["ref"]]["Footprint"]
         if "Value" in config["SelectedColumns"]:
-            ibom_json["components"][component.idx]["val"] = variant_components[component.attrs["ref"]][config["ValueParameterName"]]
+            ibom_json["components"][component.idx]["val"] = variant_components[component.attrs["ref"]][
+                config["ValueParameterName"]
+            ]
         for field_name in config["SelectedColumns"]:
-            ibom_json["components"][component.idx]["extra_fields"][field_name] = variant_components[component.attrs["ref"]][field_name]
+            ibom_json["components"][component.idx]["extra_fields"][field_name] = variant_components[
+                component.attrs["ref"]
+            ][field_name]
         visited_components.add(component.attrs["ref"])
     return visited_components
+
 
 def update_ibom_metadata(ibom_json, pnp_file_info):
     if "font_data" in ibom_json["pcbdata"].keys():
@@ -183,6 +209,7 @@ def update_ibom_metadata(ibom_json, pnp_file_info):
 
     date = datetime.strptime(pnp_file_info.date, "%d/%m/%y")
     ibom_json["pcbdata"]["metadata"]["date"] = date.strftime("%d.%m.%Y")
+
 
 def has_extra_components(variant_components: dict, visited_components: set) -> bool:
     """Check if there are extra components in the PNP file that are not in the IBOM JSON."""

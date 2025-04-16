@@ -47,3 +47,6 @@ mask_initial_release = true  # Do not list changes for the first release
 [tool.semantic_release.publish]
 dist_glob_patterns = ["dist/*"]
 upload_to_vcs_release = true
+
+[tool.ruff]
+line-length = 120
