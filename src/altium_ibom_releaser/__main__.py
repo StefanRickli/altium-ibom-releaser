@@ -32,7 +32,7 @@ def find_json_file(search_dir: Path) -> Path | None:
     if target_json_file := next(search_dir.rglob("*.json"), None):
         return target_json_file
     else:
-        raise FileNotFoundError(f"JSON ffffffffffffffffile not found in {search_dir}.")
+        raise FileNotFoundError(f"JSON file not found in {search_dir}.")
 
 def find_pnp_file(search_dir: Path) -> Path | None:
     candidates_files = search_dir.rglob("*.csv")
