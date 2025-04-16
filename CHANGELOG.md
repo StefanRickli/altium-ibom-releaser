@@ -2,6 +2,27 @@
 
 <!-- version list -->
 
+## v0.8.0 (2025-04-16)
+
+### Chores
+
+- **version**: Remove constraint to keep major version on zero
+  ([`27698db`](https://github.com/StefanRickli/altium-ibom-releaser/commit/27698dbd3aedcfb9de7c0feb6669d86b4a99b2c9))
+
+### Code Style
+
+- Remove debug string
+  ([`312b807`](https://github.com/StefanRickli/altium-ibom-releaser/commit/312b80758b8f7a363c6fb41f66a10c6285e34f1f))
+
+### Features
+
+- **config**: Use cfg file to display only the selected columns
+  ([`75669cb`](https://github.com/StefanRickli/altium-ibom-releaser/commit/75669cb7caea7c6043f7e9be485c3765c6e2d0f8))
+
+- **directories**: Improve logic to find input files
+  ([`7299823`](https://github.com/StefanRickli/altium-ibom-releaser/commit/7299823611099628b04d5cafe5e47778e0424b8a))
+
+
 ## v0.7.1 (2025-04-16)
 
 ### Bug Fixes
