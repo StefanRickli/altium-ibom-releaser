@@ -16,7 +16,7 @@ tmp_dir = Path("./tmp")
 @dataclass
 class Field:
     name: str = ""
-    slice: tuple[int, int] = (0, 0)
+    slice: tuple[int, int | None] = (0, 0)
 
 
 @dataclass
@@ -26,7 +26,7 @@ class FileInfo:
     revision: str = ""
     variant: str = ""
     units_used: str = ""
-    fields: dict[str, Field] = field(default_factory=dict)
+    fields: dict[str, Field | None] = field(default_factory=dict)
     data_offset: int = 0
 
 
@@ -59,19 +59,19 @@ def parse_header(lines: list[str], txt: bool = True) -> FileInfo:
             continue
         if "Designator" in line:
             if txt:
-                file_info.fields = extract_fields(line, csv)
+                file_info.fields = extract_fields(line)
                 file_info.data_offset = i + 1  # Data starts after the header line
             else:
-                file_info.fields = {}
+                file_info.fields = {}  # will be populated later
                 file_info.data_offset = i  # Include header line for csv parser
             return file_info
     else:
         raise ValueError("No header line found in PNP file.")
 
 
-def extract_fields(line: str, csv: bool) -> list[Field]:
+def extract_fields(line: str) -> dict[str, Field | None]:
     """Extract fields from the header line."""
-    fields = []
+    fields: list[Field] = []
     field_names = line.split()
     n_fields = len(field_names)
     for i, field_name in enumerate(field_names):
@@ -101,7 +101,7 @@ def extract_variant_components_csv(pnp_file_contents: str) -> tuple[dict, FileIn
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines, txt=False)
     reader = csv.DictReader(lines[file_info.data_offset :])
-    file_info.fields = reader.fieldnames
+    file_info.fields = {fieldname: None for fieldname in (reader.fieldnames or [])}
     components = {component["Designator"]: component for component in reader}
     return (components, file_info)
 
@@ -116,6 +116,7 @@ def extract_variant_components_txt(pnp_file_contents: str) -> tuple[dict, FileIn
             continue
         new_component = {}
         for field in file_info.fields.values():
+            assert field
             start, end = field.slice
             value = cleanup_string(line[start:end])
             new_component[field.name] = value
@@ -137,7 +138,7 @@ def load_ibom_json(file_path: Path) -> dict:
 
 def assert_no_missing_cols(config: dict[str, Any], pnp_file_info: FileInfo) -> None:
     """Check if the PNP file has all the required columns."""
-    missing_cols = set(config["SelectedColumns"]) - set(pnp_file_info.fields)
+    missing_cols = set(config["SelectedColumns"]) - set(pnp_file_info.fields.keys())
     if missing_cols:
         raise ValueError(
             f"Configured InteractiveHTMLBOM4Altium to use columns {missing_cols}, but PNP file is missing them."

@@ -14,7 +14,7 @@ from altium_ibom_releaser.util import init_logging
 
 # Prevent InteractiveHtmlBom from trying to load not-installed packaged `pcbnew`
 os.environ["INTERACTIVE_HTML_BOM_CLI_MODE"] = "1"
-import InteractiveHtmlBom.generate_interactive_bom as ibom
+import InteractiveHtmlBom.generate_interactive_bom as ibom # type: ignore
 
 from altium_ibom_releaser.patch_json import patch_json
 
@@ -30,7 +30,7 @@ def get_variant(pnp_file: Path) -> str:
         raise ValueError("Variant not found in PNP file.")
 
 
-def find_json_file(search_dir: Path) -> Path | None:
+def find_json_file(search_dir: Path) -> Path:
     if target_json_file := next(search_dir.rglob("*.json"), None):
         return target_json_file
     else:
@@ -55,13 +55,14 @@ def get_release_dir(current_dir: Path) -> Path:
     for parent in current_dir.parents:
         if (parent / "Assembly").exists():
             return parent
+    raise FileNotFoundError(f"Release directory not found in '{current_dir}'.")
 
 
 def get_assembly_dir(current_path: Path) -> Path:
     for parent in current_path.parents:
         if "Assembly" in parent.name:
             return parent
-
+    raise FileNotFoundError(f"Assembly directory not found in '{current_path}'.")
 
 def find_files(start_dir: Path, extend_search: bool = True) -> Paths | None:
     json_file = find_json_file(start_dir)
@@ -88,7 +89,7 @@ def find_files(start_dir: Path, extend_search: bool = True) -> Paths | None:
 
 def parse_config(config_raw: str) -> dict[str, Any]:
     config_lines = config_raw.split("|")
-    config_dict = {}
+    config_dict: dict[str, Any] = {}
     for line in config_lines:
         if not line.strip():
             continue
