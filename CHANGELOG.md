@@ -2,6 +2,24 @@
 
 <!-- version list -->
 
+## v0.7.0 (2025-04-16)
+
+### Bug Fixes
+
+- **fonts**: Let InteractiveHtmlBom handle the components' texts
+  ([`f4fb1cf`](https://github.com/StefanRickli/altium-ibom-releaser/commit/f4fb1cf5f82754e81e32213761ace614c51d7262))
+
+### Chores
+
+- **build**: Somehow, __init__.py was not added
+  ([`efdd2d1`](https://github.com/StefanRickli/altium-ibom-releaser/commit/efdd2d1e6ca1bcea04ae9af4751760e27ed69789))
+
+### Features
+
+- **ibom4altium**: Merge latest updates from upstream
+  ([`974a061`](https://github.com/StefanRickli/altium-ibom-releaser/commit/974a061d0692528909832f529406293d2afcb779))
+
+
 ## v0.6.1 (2025-04-15)
 
 ### Bug Fixes
