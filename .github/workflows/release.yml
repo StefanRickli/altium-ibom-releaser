@@ -19,9 +19,12 @@ jobs:
         submodules: recursive
         lfs: true
 
-    - name: Prepare release assets
+    - name: Debug and prepare release assets
       run: |
+        set -e  # fail if anything goes wrong
         mkdir release_assets
+        echo "Listing files in ./release:"
+        ls -lh release/
         cp release/altium_ibom_releaser.exe release_assets/
         cp InteractiveHTMLBOM4Altium2/InteractiveHTMLBOM4Altium2.pas release_assets/
         cp InteractiveHTMLBOM4Altium2/InteractiveHTMLBOM4Altium2.dfm release_assets/
