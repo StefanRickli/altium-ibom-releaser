@@ -7,7 +7,6 @@ import sys
 import argparse
 from pathlib import Path
 import logging
-from colorlog import ColoredFormatter
 
 from altium_ibom_releaser.common import PatchStatus, Paths
 from altium_ibom_releaser.util import init_logging
@@ -29,39 +28,50 @@ def get_variant(pnp_file: Path) -> str:
     else:
         raise ValueError("Variant not found in PNP file.")
 
-def is_project_release(script_dir: Path) -> bool:
-    # base_dir might be the following path:
-    # C:\Users\srickli\AppData\Local\TempReleases\Snapshot\1\Assembly VariantName
-    # We look for a sibling folder of "Assembly VariantName" named "Assembly"
-    if next(script_dir.parent.glob("Assembly"), None):
-        return True
-    return False
-
-def find_files(variant_dir: Path, extend_search: bool = True) -> Paths | None:
-    pnp_file = next((variant_dir / "Pick Place").glob("*.csv"), None)
-    if not pnp_file:
-        if extend_search:
-            if paths := find_files(variant_dir.parent, extend_search=False):
-                return paths
-            elif paths := find_files(variant_dir / "Script", extend_search=False):
-                return paths
-            else:
-                raise FileNotFoundError(f"PNP file not found in '{variant_dir}'.")
-        else:
-            return None
-    if is_project_release(variant_dir):
-        moduleLogger.debug("Project Release detected.")
-        release_dir = variant_dir.parent
-        no_variant_json_file = next((release_dir / "Assembly/Script").glob("*.json"), None)
-        if not no_variant_json_file:
-            raise FileNotFoundError(f"JSON file not found in '{release_dir / 'Assembly/Script'}'.")
-        target_json_file = (variant_dir / f"Script/{pnp_file.stem.replace("Pick Place", "iBOM")}_patched.json")
+def find_json_file(search_dir: Path) -> Path | None:
+    if target_json_file := next(search_dir.rglob("*.json"), None):
+        return target_json_file
     else:
-        moduleLogger.debug("Not in a Project Release.")
-        if get_variant(pnp_file) != "No Variation":
-            moduleLogger.warning("Direct OutJob invocation with a variant! JSON might be incomplete!")
-        no_variant_json_file = next((variant_dir / "Script").glob("*.json"), None)
-        target_json_file = no_variant_json_file.with_stem(pnp_file.stem.replace("Pick Place", "iBOM") + "_patched")
+        raise FileNotFoundError(f"JSON ffffffffffffffffile not found in {search_dir}.")
+
+def find_pnp_file(search_dir: Path) -> Path | None:
+    candidates_files = search_dir.rglob("*.csv")
+    for pnp_file in candidates_files:
+        if any(search_term in pnp_file.name.lower() for search_term in ("pick place", "pickandplace", "pick&place", "pnp")):
+            return pnp_file
+    return None
+
+def is_project_release(current_dir: Path) -> bool:
+    return all(search_term in str(current_dir) for search_term in ("TempReleases", "Snapshot"))
+
+def get_release_dir(current_dir: Path) -> Path:
+    for parent in current_dir.parents:
+        if (parent / "Assembly").exists():
+            return parent
+
+def get_assembly_dir(current_path: Path) -> Path:
+    for parent in current_path.parents:
+        if "Assembly" in parent.name:
+            return parent
+
+def find_files(start_dir: Path, extend_search: bool = True) -> Paths | None:
+    json_file = find_json_file(start_dir)
+    if not (pnp_file := find_pnp_file(start_dir)):
+        if not (pnp_file := find_pnp_file(start_dir.parent)):
+            raise FileNotFoundError(f"PNP file not found in '{start_dir}'.")
+    target_json_file = json_file.with_stem(json_file.stem + "_patched")
+
+    if is_project_release(start_dir):
+        moduleLogger.debug("Project Release detected.")
+        # Extract the folder structure that target_json_file was in, and apply it to the
+        # release_dir to find the no_variant_json_file.
+        release_dir = get_release_dir(start_dir)
+        json_file_rel_subdir = json_file.parent.relative_to(get_assembly_dir(json_file))
+        no_variant_json_dir = (release_dir / "Assembly" / json_file_rel_subdir)
+        if not (no_variant_json_file := next(no_variant_json_dir.glob("*.json"))):
+            raise FileNotFoundError(f"JSON file not found in '{no_variant_json_dir}'.")
+    else:
+        no_variant_json_file = json_file
     return Paths(pnp_file, no_variant_json_file, target_json_file)
 
 def main():
@@ -71,9 +81,10 @@ def main():
     parser.add_argument("outjob_dir", type=str, help="Path to the Output Job directory.")
     args = parser.parse_args()
 
-    paths = find_files(Path(args.outjob_dir))
-    if paths.pnp_file.parent != paths.no_variation_json_file.parent:
-        patch_result = patch_output(paths)
+    # Remove a trailing double quote in the path if it exists
+    # This is a workaround for a bug in the Altium Designer scripting engine that adds a double quote at the end of the path.
+    paths = find_files(Path(args.outjob_dir.rstrip('"')))
+    patch_result = patch_output(paths)
 
     sys.argv = ["InteractiveHtmlBom", "--no-browser", "--dest-dir", ".", str(paths.target_json_file)]
     logger = logging.getLogger('InteractiveHtmlBom')
