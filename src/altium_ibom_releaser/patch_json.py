@@ -164,6 +164,8 @@ def patch_output(paths: Paths, config: dict[str, Any]) -> PatchResult:
         # Let InteractiveHtmlBom generate the font_data and use its default font
         del ibom_json["pcbdata"]["font_data"]
 
+    ibom_json["pcbdata"]["metadata"]["date"] = pnp_file_info.date
+
     (paths.target_json_file.parent).mkdir(parents=True, exist_ok=True)
     paths.target_json_file.write_text(json.dumps(ibom_json, indent=4), encoding="utf-8")
 
