@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.9.0 (2025-04-16)
+
+### Features
+
+- Add date info to respective field
+  ([`5353d9d`](https://github.com/StefanRickli/altium-ibom-releaser/commit/5353d9d40612d949a85e11dac70817c0a714d50f))
+
+
 ## v0.8.0 (2025-04-16)
 
 ### Chores
