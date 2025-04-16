@@ -1,5 +1,6 @@
 import csv
 from dataclasses import dataclass, field
+from datetime import datetime
 import json
 from pathlib import Path
 from typing import Any
@@ -79,7 +80,14 @@ def extract_fields(line: str, csv: bool) -> list[Field]:
             fields[-1].slice = (fields[-1].slice[0], None)
     return {f.name: f for f in fields}
 
-def extract_components_csv(pnp_file_contents: str) -> tuple[dict, FileInfo]:
+def extract_variant_components(paths):
+    if paths.pnp_file.suffix == ".csv":
+        variant_components, pnp_file_info = extract_variant_components_csv(paths.pnp_file.read_text(encoding="windows-1252"))
+    else:
+        variant_components, pnp_file_info = extract_variant_components_txt(paths.pnp_file.read_text(encoding="windows-1252"))
+    return variant_components,pnp_file_info
+
+def extract_variant_components_csv(pnp_file_contents: str) -> tuple[dict, FileInfo]:
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines, txt=False)
     reader = csv.DictReader(lines[file_info.data_offset:])
@@ -87,7 +95,7 @@ def extract_components_csv(pnp_file_contents: str) -> tuple[dict, FileInfo]:
     components = {component["Designator"]: component for component in reader}
     return (components, file_info)
 
-def extract_components_txt(pnp_file_contents: str) -> tuple[dict, FileInfo]:
+def extract_variant_components_txt(pnp_file_contents: str) -> tuple[dict, FileInfo]:
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines)
     moduleLogger.debug(file_info)
@@ -124,7 +132,7 @@ class Component:
     idx: int
     attrs: dict[str, Any]
 
-def patch_output(paths: Paths, config: dict[str, Any]) -> PatchResult:
+def patch_json(paths: Paths, config: dict[str, Any]) -> PatchResult:
     assert isinstance(paths, Paths), "paths must be a Paths object."
     assert paths.pnp_file.exists(), f"PNP file {paths.pnp_file} does not exist."
     assert paths.no_variation_json_file.exists(), f"JSON file {paths.no_variation_json_file} does not exist."
@@ -135,11 +143,25 @@ def patch_output(paths: Paths, config: dict[str, Any]) -> PatchResult:
     ibom_components = reversed([Component(i, attrs) for i, attrs in enumerate(ibom_json["components"])])
 
     moduleLogger.debug(f"Processing PNP file: {paths.pnp_file}")
-    if paths.pnp_file.suffix == ".csv":
-        variant_components, pnp_file_info = extract_components_csv(paths.pnp_file.read_text(encoding="windows-1252"))
-    else:
-        variant_components, pnp_file_info = extract_components_txt(paths.pnp_file.read_text(encoding="windows-1252"))
+    variant_components, pnp_file_info = extract_variant_components(paths)
     assert_no_missing_cols(config, pnp_file_info)
+    visited_components = update_ibom_components(config, ibom_json, ibom_components, variant_components)
+
+    update_ibom_metadata(ibom_json, pnp_file_info)
+
+    if has_extra_components(variant_components, visited_components):
+        moduleLogger.error("Extra components found in PNP file!")
+        ibom_json["pcbdata"]["metadata"]["title"] += " (❌ INCOMPLETE ❌)"
+        result.status = PatchStatus.ERROR
+        result.message = ("The iBOM HTML very likely has missing components.\n"
+                          "The conversion only works correctly with variants if you use the Project Releaser.")
+
+    (paths.target_json_file.parent).mkdir(parents=True, exist_ok=True)
+    paths.target_json_file.write_text(json.dumps(ibom_json, indent=4), encoding="utf-8")
+
+    return result
+
+def update_ibom_components(config, ibom_json, ibom_components, variant_components):
     visited_components = set()
     for component in ibom_components:
         if component.attrs["ref"] not in variant_components.keys():
@@ -152,24 +174,14 @@ def patch_output(paths: Paths, config: dict[str, Any]) -> PatchResult:
         for field_name in config["SelectedColumns"]:
             ibom_json["components"][component.idx]["extra_fields"][field_name] = variant_components[component.attrs["ref"]][field_name]
         visited_components.add(component.attrs["ref"])
+    return visited_components
 
-    if has_extra_components(variant_components, visited_components):
-        moduleLogger.error("Extra components found in PNP file!")
-        ibom_json["pcbdata"]["metadata"]["title"] += " (❌ INCOMPLETE ❌)"
-        result.status = PatchStatus.ERROR
-        result.message = ("The iBOM HTML very likely has missing components.\n"
-                          "The conversion only works correctly with variants if you use the Project Releaser.")
-
+def update_ibom_metadata(ibom_json, pnp_file_info):
     if "font_data" in ibom_json["pcbdata"].keys():
         # Let InteractiveHtmlBom generate the font_data and use its default font
         del ibom_json["pcbdata"]["font_data"]
 
     ibom_json["pcbdata"]["metadata"]["date"] = pnp_file_info.date
-
-    (paths.target_json_file.parent).mkdir(parents=True, exist_ok=True)
-    paths.target_json_file.write_text(json.dumps(ibom_json, indent=4), encoding="utf-8")
-
-    return result
 
 def has_extra_components(variant_components: dict, visited_components: set) -> bool:
     """Check if there are extra components in the PNP file that are not in the IBOM JSON."""

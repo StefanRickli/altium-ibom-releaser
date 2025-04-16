@@ -16,7 +16,7 @@ from altium_ibom_releaser.util import init_logging
 os.environ["INTERACTIVE_HTML_BOM_CLI_MODE"] = "1"
 import InteractiveHtmlBom.generate_interactive_bom as ibom
 
-from altium_ibom_releaser.patch_json import patch_output
+from altium_ibom_releaser.patch_json import patch_json
 
 moduleLogger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ def main():
     config_raw = paths.cfg_file.read_text(encoding="windows-1252")
     config = parse_config(config_raw)
 
-    patch_result = patch_output(paths, config)
+    patch_result = patch_json(paths, config)
 
     # sys.argv = ["InteractiveHtmlBom", "-h"]
     sys.argv = [
