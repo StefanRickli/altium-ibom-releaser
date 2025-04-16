@@ -150,6 +150,10 @@ def patch_output(paths: Paths) -> PatchResult:
         result.message = ("The iBOM HTML very likely has missing components.\n"
                           "The conversion only works correctly with variants if you use the Project Releaser.")
 
+    if "font_data" in ibom_json["pcbdata"].keys():
+        # Let InteractiveHtmlBom generate the font_data and use its default font
+        del ibom_json["pcbdata"]["font_data"]
+
     (paths.target_json_file.parent).mkdir(parents=True, exist_ok=True)
     paths.target_json_file.write_text(json.dumps(ibom_json, indent=4), encoding="utf-8")
 
