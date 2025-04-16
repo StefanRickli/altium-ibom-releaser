@@ -79,14 +79,15 @@ def extract_fields(line: str, csv: bool) -> list[Field]:
             fields[-1].slice = (fields[-1].slice[0], None)
     return {f.name: f for f in fields}
 
-def extract_components_csv(pnp_file_contents: str) -> dict:
+def extract_components_csv(pnp_file_contents: str) -> tuple[dict, FileInfo]:
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines, txt=False)
     reader = csv.DictReader(lines[file_info.data_offset:])
+    file_info.fields = reader.fieldnames
     components = {component["Designator"]: component for component in reader}
-    return components
+    return (components, file_info)
 
-def extract_components_txt(pnp_file_contents: str) -> dict:
+def extract_components_txt(pnp_file_contents: str) -> tuple[dict, FileInfo]:
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines)
     moduleLogger.debug(file_info)
@@ -100,7 +101,7 @@ def extract_components_txt(pnp_file_contents: str) -> dict:
             value = cleanup_string(line[start:end])
             new_component[field.name] = value
         components[new_component["Designator"]] = new_component
-    return components
+    return (components, file_info)
 
 def cleanup_string(s: str):
     """ Remove leading, trailing double quotes and spaces from string """
@@ -112,12 +113,18 @@ def cleanup_string(s: str):
 def load_ibom_json(file_path: Path) -> dict:
     return json.loads(file_path.read_text(encoding="utf-8"))
 
+def assert_no_missing_cols(config: dict[str, Any], pnp_file_info: FileInfo) -> None:
+    """Check if the PNP file has all the required columns."""
+    missing_cols = set(config["SelectedColumns"]) - set(pnp_file_info.fields)
+    if missing_cols:
+        raise ValueError(f"Configured InteractiveHTMLBOM4Altium to use columns {missing_cols}, but PNP file is missing them.")
+
 @dataclass
 class Component:
     idx: int
     attrs: dict[str, Any]
 
-def patch_output(paths: Paths) -> PatchResult:
+def patch_output(paths: Paths, config: dict[str, Any]) -> PatchResult:
     assert isinstance(paths, Paths), "paths must be a Paths object."
     assert paths.pnp_file.exists(), f"PNP file {paths.pnp_file} does not exist."
     assert paths.no_variation_json_file.exists(), f"JSON file {paths.no_variation_json_file} does not exist."
@@ -129,9 +136,10 @@ def patch_output(paths: Paths) -> PatchResult:
 
     moduleLogger.debug(f"Processing PNP file: {paths.pnp_file}")
     if paths.pnp_file.suffix == ".csv":
-        variant_components = extract_components_csv(paths.pnp_file.read_text(encoding="windows-1252"))
+        variant_components, pnp_file_info = extract_components_csv(paths.pnp_file.read_text(encoding="windows-1252"))
     else:
-        variant_components = extract_components_txt(paths.pnp_file.read_text(encoding="windows-1252"))
+        variant_components, pnp_file_info = extract_components_txt(paths.pnp_file.read_text(encoding="windows-1252"))
+    assert_no_missing_cols(config, pnp_file_info)
     visited_components = set()
     for component in ibom_components:
         if component.attrs["ref"] not in variant_components.keys():
@@ -139,8 +147,10 @@ def patch_output(paths: Paths) -> PatchResult:
             ibom_json["components"][component.idx]["extra_fields"]["dnp"] = "DNP"
             continue
         ibom_json["components"][component.idx]["footprint"] = variant_components[component.attrs["ref"]]["Footprint"]
-        ibom_json["components"][component.idx]["val"] = variant_components[component.attrs["ref"]]["Description"]
-        ibom_json["components"][component.idx]["extra_fields"]["Comment"] = variant_components[component.attrs["ref"]]["Comment"]
+        if "Value" in config["SelectedColumns"]:
+            ibom_json["components"][component.idx]["val"] = variant_components[component.attrs["ref"]][config["ValueParameterName"]]
+        for field_name in config["SelectedColumns"]:
+            ibom_json["components"][component.idx]["extra_fields"][field_name] = variant_components[component.attrs["ref"]][field_name]
         visited_components.add(component.attrs["ref"])
 
     if has_extra_components(variant_components, visited_components):

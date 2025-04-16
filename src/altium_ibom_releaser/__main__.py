@@ -7,6 +7,7 @@ import sys
 import argparse
 from pathlib import Path
 import logging
+from typing import Any
 
 from altium_ibom_releaser.common import PatchStatus, Paths
 from altium_ibom_releaser.util import init_logging
@@ -56,6 +57,8 @@ def get_assembly_dir(current_path: Path) -> Path:
 
 def find_files(start_dir: Path, extend_search: bool = True) -> Paths | None:
     json_file = find_json_file(start_dir)
+    if not (cfg_file := json_file.with_suffix(".cfg")).exists():
+        raise FileNotFoundError(f"CFG file not found in '{start_dir}'.")
     if not (pnp_file := find_pnp_file(start_dir)):
         if not (pnp_file := find_pnp_file(start_dir.parent)):
             raise FileNotFoundError(f"PNP file not found in '{start_dir}'.")
@@ -72,7 +75,20 @@ def find_files(start_dir: Path, extend_search: bool = True) -> Paths | None:
             raise FileNotFoundError(f"JSON file not found in '{no_variant_json_dir}'.")
     else:
         no_variant_json_file = json_file
-    return Paths(pnp_file, no_variant_json_file, target_json_file)
+    return Paths(pnp_file, no_variant_json_file, target_json_file, cfg_file)
+
+def parse_config(config_raw: str) -> dict[str, Any]:
+    config_lines = config_raw.split('|')
+    config_dict = {}
+    for line in config_lines:
+        if not line.strip():
+            continue
+        key, value = line.split("=", 1)
+        if key.strip() == "ColumnsParametersNames":
+            config_dict["SelectedColumns"] = [col.strip().replace("[","").replace("]","") for col in value.split(",")]
+        else:
+            config_dict[key.strip()] = value.strip()
+    return config_dict
 
 def main():
     init_logging()
@@ -84,9 +100,24 @@ def main():
     # Remove a trailing double quote in the path if it exists
     # This is a workaround for a bug in the Altium Designer scripting engine that adds a double quote at the end of the path.
     paths = find_files(Path(args.outjob_dir.rstrip('"')))
-    patch_result = patch_output(paths)
 
-    sys.argv = ["InteractiveHtmlBom", "--no-browser", "--dest-dir", ".", str(paths.target_json_file)]
+    config_raw = paths.cfg_file.read_text(encoding="windows-1252")
+    config = parse_config(config_raw)
+
+    patch_result = patch_output(paths, config)
+
+    # sys.argv = ["InteractiveHtmlBom", "-h"]
+    sys.argv = [
+        "InteractiveHtmlBom",
+        "--no-browser",
+        "--dest-dir",
+        ".",
+        "--dnp-field",
+        "dnp",
+        "--show-fields",
+        ",".join(config["SelectedColumns"]),
+        str(paths.target_json_file),
+        ]
     logger = logging.getLogger('InteractiveHtmlBom')
     logger.handlers.clear()
     ibom.main()

@@ -8,6 +8,7 @@ class Paths:
     pnp_file: Path
     no_variation_json_file: Path
     target_json_file: Path
+    cfg_file: Path
 
 class PatchStatus(Enum):
     OK = auto()
