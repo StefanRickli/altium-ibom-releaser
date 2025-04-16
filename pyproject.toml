@@ -55,3 +55,8 @@ upload_to_vcs_release = true
 
 [tool.ruff]
 line-length = 120
+
+[tool.mypy]
+files = ["src"]
+disallow_untyped_calls = true
+disallow_untyped_defs = true

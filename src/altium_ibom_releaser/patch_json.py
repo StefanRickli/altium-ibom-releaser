@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 import logging
 
 from altium_ibom_releaser.common import PatchResult, PatchStatus, Paths
@@ -85,7 +85,7 @@ def extract_fields(line: str) -> dict[str, Field | None]:
     return {f.name: f for f in fields}
 
 
-def extract_variant_components(paths):
+def extract_variant_components(paths: Paths) -> tuple[dict[str, dict[str, str]], FileInfo]:
     if paths.pnp_file.suffix == ".csv":
         variant_components, pnp_file_info = extract_variant_components_csv(
             paths.pnp_file.read_text(encoding="windows-1252")
@@ -97,16 +97,16 @@ def extract_variant_components(paths):
     return variant_components, pnp_file_info
 
 
-def extract_variant_components_csv(pnp_file_contents: str) -> tuple[dict, FileInfo]:
+def extract_variant_components_csv(pnp_file_contents: str) -> tuple[dict[str, dict[str, str]], FileInfo]:
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines, txt=False)
     reader = csv.DictReader(lines[file_info.data_offset :])
     file_info.fields = {fieldname: None for fieldname in (reader.fieldnames or [])}
-    components = {component["Designator"]: component for component in reader}
+    components = {str(component["Designator"]): component for component in reader}
     return (components, file_info)
 
 
-def extract_variant_components_txt(pnp_file_contents: str) -> tuple[dict, FileInfo]:
+def extract_variant_components_txt(pnp_file_contents: str) -> tuple[dict[str, dict[str, str]], FileInfo]:
     lines = pnp_file_contents.strip().splitlines()
     file_info = parse_header(lines)
     moduleLogger.debug(file_info)
@@ -124,7 +124,7 @@ def extract_variant_components_txt(pnp_file_contents: str) -> tuple[dict, FileIn
     return (components, file_info)
 
 
-def cleanup_string(s: str):
+def cleanup_string(s: str) -> str:
     """Remove leading, trailing double quotes and spaces from string"""
     s = s.strip()
     if s.startswith('"') and s.endswith('"'):
@@ -183,7 +183,7 @@ def patch_json(paths: Paths, config: dict[str, Any]) -> PatchResult:
     return result
 
 
-def update_ibom_components(config, ibom_json, ibom_components, variant_components):
+def update_ibom_components(config: dict[str, Any], ibom_json: dict[str, Any], ibom_components: Iterator[Component], variant_components: dict[str, dict[str, str]]) -> set[str]:
     visited_components = set()
     for component in ibom_components:
         if component.attrs["ref"] not in variant_components.keys():
@@ -203,7 +203,7 @@ def update_ibom_components(config, ibom_json, ibom_components, variant_component
     return visited_components
 
 
-def update_ibom_metadata(ibom_json, pnp_file_info):
+def update_ibom_metadata(ibom_json: dict[str, Any], pnp_file_info: FileInfo) -> None:
     if "font_data" in ibom_json["pcbdata"].keys():
         # Let InteractiveHtmlBom generate the font_data and use its default font
         del ibom_json["pcbdata"]["font_data"]

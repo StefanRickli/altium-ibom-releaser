@@ -64,7 +64,7 @@ def get_assembly_dir(current_path: Path) -> Path:
             return parent
     raise FileNotFoundError(f"Assembly directory not found in '{current_path}'.")
 
-def find_files(start_dir: Path, extend_search: bool = True) -> Paths | None:
+def find_files(start_dir: Path, extend_search: bool = True) -> Paths:
     json_file = find_json_file(start_dir)
     if not (cfg_file := json_file.with_suffix(".cfg")).exists():
         raise FileNotFoundError(f"CFG file not found in '{start_dir}'.")
@@ -101,7 +101,7 @@ def parse_config(config_raw: str) -> dict[str, Any]:
     return config_dict
 
 
-def main():
+def main() -> None:
     init_logging()
 
     parser = argparse.ArgumentParser(
